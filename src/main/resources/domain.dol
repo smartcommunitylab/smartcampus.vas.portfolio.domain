@@ -1,0 +1,272 @@
+/*******************************************************************************
+ * Copyright 2012-2013 Trento RISE
+ * 
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ * 
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ ******************************************************************************/
+package smartcampus.services.esse3;
+
+import it.sayservice.platform.compiler.domain.model.annotations.ServiceNotification;
+import it.sayservice.platform.compiler.domain.model.annotations.Service;
+import it.sayservice.platform.compiler.domain.model.annotations.Subscription;
+import it.sayservice.platform.compiler.domain.model.annotations.Local;
+import it.sayservice.platform.compiler.domain.model.annotations.Process;
+
+import smartcampus.service.esse3.data.message.Esse3.Student;
+import smartcampus.services.esse3.data.StudentData;
+import smartcampus.services.esse3.data.ExamData;
+
+import smartcampus.services.esse3.helper.DomainHelper;
+
+import eu.trentorise.smartcampus.domain.semantic.Tag;
+import eu.trentorise.smartcampus.domain.semantic.SemanticService;
+
+DomainObject StudentFactory {
+
+    @Local(actionName="createStudent")
+    operation createStudent(newUserId:String,newIdAda:String) returns boolean;
+    
+   action createStudent(newUserId:String,newIdAda:String) returns boolean {
+	    student : StudentInfo[] = query StudentInfo(userId == newUserId);
+        if (student == null || count(student) == 0) {
+        	create StudentInfo(userId:newUserId,idAda:newIdAda);
+        	create StudentExams(userId:newUserId,idAda:newIdAda);
+			return true;
+        }
+        return false;
+	}
+	
+}
+
+// STUDENT PERSONAL INFO
+
+DomainType StudentInfo {
+		public immutable var userId : String;
+		public immutable var idAda : String;
+		
+		public var studentData: StudentData;
+		
+		@Subscription(serviceId="smartcampus.service.esse3", methodName="GetStudentData")
+    	operation subscribeStudentData(idAda:String);	
+    	
+	    @Service(serviceId="smartcampus.service.esse3", methodName="GetStudentData", converter="smartcampus.services.esse3.data.StudentDataConverter")
+	    operation getStudentData(idAda:String) returns StudentData;	    	
+
+		@Local(actionName="forceUpdate")
+    	operation forceUpdate(idAda:String);	
+				
+		action storeInfo(data:StudentData) {
+			set studentData = data;
+		}
+		
+		subscribe StudentDataService!updateStudentData(serviceIdAda = idAda) => storeInfo(data);
+
+		action forceUpdate() {
+			invoke data:getStudentData(idAda) => storeInfo(data);
+		}
+		
+		action initialize() {
+			invoke data:getStudentData(idAda) => storeInfo(data);
+			invoke subscribeStudentData(idAda);
+		}
+}
+
+DomainObject StudentDataService {
+
+	@ServiceNotification(serviceId="smartcampus.service.esse3", methodName="GetStudentData", converter="smartcampus.services.esse3.data.StudentDataNotificationConverter")
+	port updateStudentData(data:StudentData,serviceIdAda:String);		
+}
+
+
+// STUDENT EXAMS
+
+DomainType StudentExams {
+		public immutable var userId : String;
+		public immutable var idAda : String;
+		
+		public var examData: ExamData[];
+		
+		@Subscription(serviceId="smartcampus.service.esse3", methodName="GetStudentExams")
+    	operation subscribeStudentExams(idAda:String);	
+    	
+	    @Service(serviceId="smartcampus.service.esse3", methodName="GetStudentExams", converter="smartcampus.services.esse3.data.StudentExamsConverter")
+	    operation getStudentExams(idAda:String) returns ExamData[];	    	
+				
+		action storeExams(data:ExamData[]) {
+			set examData = data;
+		}
+		
+		subscribe StudentExamsService!updateStudentExams(serviceIdAda = idAda) => storeExams(data);
+		
+		action initialize() {
+			invoke data:getStudentExams(idAda) => storeExams(data);
+			invoke subscribeStudentExams(idAda);
+		}
+}
+
+DomainObject StudentExamsService {
+
+	@ServiceNotification(serviceId="smartcampus.service.esse3", methodName="GetStudentExams", converter="smartcampus.services.esse3.data.StudentExamsNotificationConverter")
+	port updateStudentExams(data:ExamData[],serviceIdAda:String);		
+}
+
+// USER PRODUCED DATA
+
+DomainType UserProducedData  {
+	public immutable var userId : String;
+	public immutable var category : String;
+	
+	public var timestamp : Long;
+
+	public var type : String;
+	public var title : String;
+	public var subtitle : String;
+	public var content : String;
+
+    @Local(actionName="updateUserProducedData")
+    operation updateUserProducedData(newType:String,newTitle:String,newSubtitle:String,newContent:String);
+    
+    @Local(actionName="deleteUserProducedData")
+    operation deleteUserProducedData();
+
+	action updateUserProducedData(newType:String,newTitle:String,newSubtitle:String,newContent:String) {
+        if (newType != null) {
+            set type = newType;
+        }
+        if (newTitle != null) {
+            set title = newTitle;
+        }            
+        if (newSubtitle != null) {
+            set subtitle = newSubtitle;
+        }    
+        if (newContent != null) {
+            set content = newContent;
+        }
+    }
+    
+    action deleteUserProducedData() => terminate;
+
+}
+
+
+DomainObject UserProducedDataFactory  {
+
+	@Local(actionName="createUserProducedData")
+    operation createUserProducedData(newUserId:String,newCategory:String,newType:String,newTitle:String,newSubtitle:String,newContent:String);
+    
+	action createUserProducedData(newUserId:String,newCategory:String,newType:String,newTitle:String,newSubtitle:String,newContent:String) {
+			create UserProducedData(userId:newUserId,category:newCategory,type:newType,title:newTitle,subtitle:newSubtitle,content:newContent,timestamp:System.currentTimeMillis());
+	}
+
+}
+
+// PORTFOLIO
+
+DomainType Portfolio {
+	public immutable var userId : String;
+	public immutable var userSocialId : Long;
+
+	public var timestamp : Long;
+	
+	public var name : String;
+	
+	public var entityId : Long;
+	public var tags : Tag[];
+
+	private var deleted : Boolean = false;
+	
+	private rel semanticService : SemanticService;
+
+	public var showUserGeneratedData : String[];
+	public var highlightUserGeneratedData : String[];
+	public var showStudentInfo : String[];
+	
+	@Local(actionName="updatePortfolio")
+    operation updatePortfolio(newName:String,newShowUserGeneratedData:String[],newHighlightUserGeneratedData:String[],newShowStudentInfo:String[], newTags: Tag[]);
+    
+    @Local(actionName="deletePortfolio")
+    operation deletePortfolio();
+    
+    @Process(engineType="activiti", processKey="updateportfolioentity", processDefURI="eu/trentorise/smartcampus/domain/portfolio/activiti/updateportfolioentity.bpmn20.xml")
+    operation updateSemanticData();
+    @Process(engineType="activiti", processKey="deleteportfolioentity", processDefURI="eu/trentorise/smartcampus/domain/portfolio/activiti/deleteportfolioentity.bpmn20.xml")
+    operation deleteSemanticData();
+
+	action updatePortfolio(newName:String,newShowUserGeneratedData:String[],newHighlightUserGeneratedData:String[],newShowStudentInfo:String[], newTags: Tag[]) {
+		if (newName != null) {
+    		set name = newName;
+    	}
+    	if (newShowUserGeneratedData != null) {
+    		set showUserGeneratedData = newShowUserGeneratedData;
+    	}
+    	if (newHighlightUserGeneratedData != null) {
+    		set highlightUserGeneratedData = newHighlightUserGeneratedData;
+    	}
+    	if (newShowStudentInfo != null) {
+    		set showStudentInfo = newShowStudentInfo;
+    	} 
+		if (newTags != null) {
+		    set tags = newTags;
+			callEntityUpdate();
+		}	
+	}
+	
+	action initialize() {
+	  set showUserGeneratedData = DomainHelper.getStringArray();
+	  set highlightUserGeneratedData = DomainHelper.getStringArray();
+	  set showStudentInfo = DomainHelper.getStringArray();
+	  set tags = DomainHelper.getTagArray();	  
+      callEntityUpdate();
+	}
+	
+	action callEntityUpdate() {
+        if(entityId == null || entityId > 0) {
+			invoke updateSemanticData();
+        }
+    }
+
+	action deletePortfolio() {
+		if (entityId != null && entityId > 0) {
+            invoke deleteSemanticData();
+        }
+		set deleted = true;
+	}
+	action _destroy() {
+        terminate;
+    }
+ 
+	action _updateEntity(newId:Long) {
+        set entityId = newId;
+    }
+
+}
+
+DomainObject PortfolioFactory {
+
+	@Local(actionName="createPortfolio")
+    operation createPortfolio(newUserId:String, newUserSocialId: Long, newName:String, newEntityId:Long);
+    
+	action createPortfolio(newUserId:String, newUserSocialId: Long, newName:String, newEntityId:Long) {
+	    portfolio : Portfolio[] = query Portfolio(userId == newUserId && name == newName);
+        if (portfolio == null || count(portfolio) == 0) {
+			create Portfolio(userId:newUserId, userSocialId: newUserSocialId, name:newName,entityId:newEntityId,timestamp:System.currentTimeMillis());
+        }
+	}
+
+}
+
+
+
+
+
+
+}
