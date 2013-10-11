@@ -229,9 +229,7 @@ DomainType Portfolio {
 	}
 	
 	action callEntityUpdate() {
-        if(entityId == null || entityId > 0) {
-			invoke updateSemanticData();
-        }
+		invoke updateSemanticData();
     }
 
 	action deletePortfolio() {
