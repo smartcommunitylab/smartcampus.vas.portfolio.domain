@@ -49,7 +49,7 @@ public class PortfolioDOEngine extends AbstractDOEngineImpl {
 
     private static Map<String,Collection<java.io.Serializable>> extensions = new HashMap<String,Collection<java.io.Serializable>>();
     static {
-        extensions.put("it.sayservice.platform.core.domain.actions.InvokeOperation",decodeExtension("rO0ABXNyABNqYXZhLnV0aWwuQXJyYXlMaXN0eIHSHZnHYZ0DAAFJAARzaXpleHAAAAAEdwQAAAAEc3IAEWphdmEudXRpbC5IYXNoTWFwBQfawcMWYNEDAAJGAApsb2FkRmFjdG9ySQAJdGhyZXNob2xkeHA/QAAAAAAADHcIAAAAEAAAAAN0AAlvcGVyYXRpb250AA9kZWxldGVQb3J0Zm9saW90AAphY3Rpb25OYW1ldAAPZGVsZXRlUG9ydGZvbGlvdAAEdHlwZXQABUxvY2FseHNxAH4AAj9AAAAAAAAMdwgAAAAQAAAABXQACmVuZ2luZVR5cGV0AAhhY3Rpdml0aXEAfgAEdAASZGVsZXRlU2VtYW50aWNEYXRhdAAKcHJvY2Vzc0tleXQAFWRlbGV0ZXBvcnRmb2xpb2VudGl0eXQADXByb2Nlc3NEZWZVUkl0AFRldS90cmVudG9yaXNlL3NtYXJ0Y2FtcHVzL2RvbWFpbi9wb3J0Zm9saW8vYWN0aXZpdGkvZGVsZXRlcG9ydGZvbGlvZW50aXR5LmJwbW4yMC54bWxxAH4ACHQAB1Byb2Nlc3N4c3EAfgACP0AAAAAAAAx3CAAAABAAAAADcQB+AAR0AA91cGRhdGVQb3J0Zm9saW9xAH4ABnQAD3VwZGF0ZVBvcnRmb2xpb3EAfgAIcQB+AAl4c3EAfgACP0AAAAAAAAx3CAAAABAAAAAFcQB+AAt0AAhhY3Rpdml0aXEAfgAEdAASdXBkYXRlU2VtYW50aWNEYXRhcQB+AA50ABV1cGRhdGVwb3J0Zm9saW9lbnRpdHlxAH4AEHQAVGV1L3RyZW50b3Jpc2Uvc21hcnRjYW1wdXMvZG9tYWluL3BvcnRmb2xpby9hY3Rpdml0aS91cGRhdGVwb3J0Zm9saW9lbnRpdHkuYnBtbjIwLnhtbHEAfgAIcQB+ABJ4eA=="));
+        extensions.put("it.sayservice.platform.core.domain.actions.InvokeOperation",decodeExtension("rO0ABXNyABNqYXZhLnV0aWwuQXJyYXlMaXN0eIHSHZnHYZ0DAAFJAARzaXpleHAAAAAEdwQAAAAFc3IAEWphdmEudXRpbC5IYXNoTWFwBQfawcMWYNEDAAJGAApsb2FkRmFjdG9ySQAJdGhyZXNob2xkeHA/QAAAAAAADHcIAAAAEAAAAAN0AAlvcGVyYXRpb250AA9kZWxldGVQb3J0Zm9saW90AAphY3Rpb25OYW1ldAAPZGVsZXRlUG9ydGZvbGlvdAAEdHlwZXQABUxvY2FseHNxAH4AAj9AAAAAAAAMdwgAAAAQAAAABXQACmVuZ2luZVR5cGV0AAhhY3Rpdml0aXEAfgAEdAASZGVsZXRlU2VtYW50aWNEYXRhdAAKcHJvY2Vzc0tleXQAFWRlbGV0ZXBvcnRmb2xpb2VudGl0eXQADXByb2Nlc3NEZWZVUkl0AFRldS90cmVudG9yaXNlL3NtYXJ0Y2FtcHVzL2RvbWFpbi9wb3J0Zm9saW8vYWN0aXZpdGkvZGVsZXRlcG9ydGZvbGlvZW50aXR5LmJwbW4yMC54bWxxAH4ACHQAB1Byb2Nlc3N4c3EAfgACP0AAAAAAAAx3CAAAABAAAAADcQB+AAR0AA91cGRhdGVQb3J0Zm9saW9xAH4ABnQAD3VwZGF0ZVBvcnRmb2xpb3EAfgAIcQB+AAl4c3EAfgACP0AAAAAAAAx3CAAAABAAAAAFcQB+AAt0AAhhY3Rpdml0aXEAfgAEdAASdXBkYXRlU2VtYW50aWNEYXRhcQB+AA50ABV1cGRhdGVwb3J0Zm9saW9lbnRpdHlxAH4AEHQAVGV1L3RyZW50b3Jpc2Uvc21hcnRjYW1wdXMvZG9tYWluL3BvcnRmb2xpby9hY3Rpdml0aS91cGRhdGVwb3J0Zm9saW9lbnRpdHkuYnBtbjIwLnhtbHEAfgAIcQB+ABJ4eA=="));
     }
 
      public  Collection<java.io.Serializable> getExtensionValues(String property) {
@@ -104,13 +104,9 @@ return null;
     private Object callEntityUpdate(Tuple tuple, DomainObjectWrapper obj, Set<DomainEvent> evts, Set<EvaluableDomainOperation> ops, String securityToken, String bundleId) throws DomainDataHandlerException {
         {
 {
-if ((getDomainObjectHandler().getVar("entityId",obj,java.lang.Long.class,bundleId) == null) || (getDomainObjectHandler().getVar("entityId",obj,java.lang.Long.class,bundleId)>0)){
-{
 {
 Tuple body = new Tuple();
 getDomainObjectHandler().invokeOperation(obj, "updateSemanticData", body, ops, bundleId);}
-}
-}
 }
 return null;
 }
